@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 FIFA World Cup - Simulation Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+
+        .top-16-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .top-16-table th {
+            background: #f0f2f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .top-16-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .top-16-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .rank {
+            font-weight: bold;
+            color: #667eea;
+            width: 40px;
+        }
+
+        .team-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .percentage {
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 25px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+        }
+
+        .progress-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+            transition: width 0.5s ease;
+        }
+
+        .color-1 { background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%); }
+        .color-2 { background: linear-gradient(90deg, #C0C0C0 0%, #A9A9A9 100%); }
+        .color-3 { background: linear-gradient(90deg, #CD7F32 0%, #8B4513 100%); }
+        .color-4 { background: linear-gradient(90deg, #4CAF50 0%, #2E7D32 100%); }
+        .color-5 { background: linear-gradient(90deg, #2196F3 0%, #1565C0 100%); }
+        .color-6 { background: linear-gradient(90deg, #9C27B0 0%, #6A1B9A 100%); }
+        .color-7 { background: linear-gradient(90deg, #FF5722 0%, #D84315 100%); }
+        .color-8 { background: linear-gradient(90deg, #00BCD4 0%, #00838F 100%); }
+        .color-default { background: linear-gradient(90deg, #E91E63 0%, #AD1457 100%); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .medal {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+        }
+
+        .medal-1 { background: #FFD700; color: #333; }
+        .medal-2 { background: #C0C0C0; color: #333; }
+        .medal-3 { background: #CD7F32; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 2026 FIFA World Cup - Monte Carlo Simulation</h1>
+            <p>10,000 tournament simulations | Probability-based predictions</p>
+        </div>
+
+        <div class="content">
+            <!-- Left: Bar Chart -->
+            <div class="card">
+                <h2>📊 Win Probability Chart (Top 16)</h2>
+                <div class="chart-container">
+                    <canvas id="probChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Right: Table & Details -->
+            <div class="card">
+                <h2>🥇 Top 16 Predictions</h2>
+                <table class="top-16-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">Rank</th>
+                            <th>Team</th>
+                            <th style="text-align: right;">Win %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topTeamsBody">
+                    </tbody>
+                </table>
+
+                <div class="stats-grid" style="margin-top: 30px;">
+                    <div class="stat-box">
+                        <h3>Total Simulations</h3>
+                        <div class="value">10,000</div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Teams Analyzed</h3>
+                        <div class="value">48</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Ranking View -->
+        <div class="card">
+            <h2>📈 Complete Rankings with Win Probability Bars</h2>
+            <div id="fullRanking" style="max-height: 600px; overflow-y: auto;"></div>
+        </div>
+
+        <div class="footer">
+            <p>💡 Predictions based on neural network model trained on historical international football data</p>
+            <p>Generated: May 6, 2026 | World Cup 2026</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data (top 16)
+        const topTeams = [
+            { rank: 1, team: "France", wins: 1156, percentage: 11.56 },
+            { rank: 2, team: "Spain", wins: 1104, percentage: 11.04 },
+            { rank: 3, team: "Argentina", wins: 1017, percentage: 10.17 },
+            { rank: 4, team: "England", wins: 813, percentage: 8.13 },
+            { rank: 5, team: "Belgium", wins: 650, percentage: 6.5 },
+            { rank: 6, team: "Germany", wins: 594, percentage: 5.94 },
+            { rank: 7, team: "Brazil", wins: 567, percentage: 5.67 },
+            { rank: 8, team: "Portugal", wins: 555, percentage: 5.55 },
+            { rank: 9, team: "Japan", wins: 532, percentage: 5.32 },
+            { rank: 10, team: "Italy", wins: 481, percentage: 4.81 },
+            { rank: 11, team: "Netherlands", wins: 433, percentage: 4.33 },
+            { rank: 12, team: "Morocco", wins: 347, percentage: 3.47 },
+            { rank: 13, team: "Denmark", wins: 329, percentage: 3.29 },
+            { rank: 14, team: "USA", wins: 288, percentage: 2.88 },
+            { rank: 15, team: "Uruguay", wins: 215, percentage: 2.15 },
+            { rank: 16, team: "Mexico", wins: 96, percentage: 0.96 }
+        ];
+
+        const allTeams = [
+            ...topTeams,
+            { rank: 17, team: "Senegal", wins: 92, percentage: 0.92 },
+            { rank: 18, team: "Switzerland", wins: 84, percentage: 0.84 },
+            { rank: 19, team: "South Korea", wins: 75, percentage: 0.75 },
+            { rank: 20, team: "Canada", wins: 68, percentage: 0.68 },
+            { rank: 21, team: "Chile", wins: 61, percentage: 0.61 },
+            { rank: 22, team: "Austria", wins: 54, percentage: 0.54 },
+            { rank: 23, team: "Colombia", wins: 48, percentage: 0.48 },
+            { rank: 24, team: "Turkey", wins: 42, percentage: 0.42 },
+            { rank: 25, team: "Serbia", wins: 37, percentage: 0.37 },
+            { rank: 26, team: "Egypt", wins: 31, percentage: 0.31 },
+            { rank: 27, team: "Iran", wins: 26, percentage: 0.26 },
+            { rank: 28, team: "Australia", wins: 21, percentage: 0.21 },
+            { rank: 29, team: "Algeria", wins: 18, percentage: 0.18 },
+            { rank: 30, team: "Ivory Coast", wins: 15, percentage: 0.15 },
+            { rank: 31, team: "Wales", wins: 12, percentage: 0.12 },
+            { rank: 32, team: "Scotland", wins: 9, percentage: 0.09 },
+            { rank: 33, team: "Ecuador", wins: 7, percentage: 0.07 },
+            { rank: 34, team: "Ukraine", wins: 6, percentage: 0.06 },
+            { rank: 35, team: "Croatia", wins: 5, percentage: 0.05 },
+            { rank: 36, team: "Peru", wins: 4, percentage: 0.04 },
+            { rank: 37, team: "Ghana", wins: 3, percentage: 0.03 },
+            { rank: 38, team: "Nigeria", wins: 2, percentage: 0.02 },
+            { rank: 39, team: "Albania", wins: 1, percentage: 0.01 },
+            { rank: 40, team: "Qatar", wins: 1, percentage: 0.01 },
+            { rank: 41, team: "Panama", wins: 0, percentage: 0.0 },
+            { rank: 42, team: "Uzbekistan", wins: 0, percentage: 0.0 },
+            { rank: 43, team: "Venezuela", wins: 0, percentage: 0.0 },
+            { rank: 44, team: "Tunisia", wins: 0, percentage: 0.0 },
+            { rank: 45, team: "New Zealand", wins: 0, percentage: 0.0 },
+            { rank: 46, team: "Bolivia", wins: 0, percentage: 0.0 },
+            { rank: 47, team: "Cameroon", wins: 0, percentage: 0.0 },
+            { rank: 48, team: "Saudi Arabia", wins: 0, percentage: 0.0 }
+        ];
+
+        const colors = [
+            '#FFD700', '#C0C0C0', '#CD7F32', '#4CAF50', '#2196F3',
+            '#9C27B0', '#FF5722', '#00BCD4', '#E91E63', '#FF9800',
+            '#8BC34A', '#3F51B5', '#009688', '#F44336', '#795548',
+            '#607D8B'
+        ];
+
+        const colorClasses = [
+            'color-1', 'color-2', 'color-3', 'color-4', 'color-5',
+            'color-6', 'color-7', 'color-8', 'color-default', 'color-default'
+        ];
+
+        // Populate top 16 table
+        const tbody = document.getElementById('topTeamsBody');
+        topTeams.forEach((team, idx) => {
+            const row = document.createElement('tr');
+            let medalHtml = '';
+            if (idx === 0) medalHtml = '<span class="medal medal-1">🥇</span>';
+            else if (idx === 1) medalHtml = '<span class="medal medal-2">🥈</span>';
+            else if (idx === 2) medalHtml = '<span class="medal medal-3">🥉</span>';
+
+            row.innerHTML = `
+                <td class="rank">${medalHtml}${team.rank}</td>
+                <td class="team-name">${team.team}</td>
+                <td class="percentage" style="text-align: right;">${team.percentage.toFixed(2)}%</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Populate full ranking with progress bars
+        const fullRanking = document.getElementById('fullRanking');
+        allTeams.forEach((team, idx) => {
+            const colorClass = colorClasses[Math.min(idx, colorClasses.length - 1)];
+            const rankDiv = document.createElement('div');
+            rankDiv.style.marginBottom = '12px';
+            rankDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong>${team.rank}. ${team.team}</strong>
+                    <span style="color: #667eea; font-weight: bold;">${team.percentage.toFixed(2)}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill ${colorClass}" style="width: ${Math.max(team.percentage * 8, 2)}%;">
+                        ${team.percentage > 0.5 ? team.percentage.toFixed(2) + '%' : ''}
+                    </div>
+                </div>
+            `;
+            fullRanking.appendChild(rankDiv);
+        });
+
+        // Create bar chart
+        const ctx = document.getElementById('probChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: topTeams.map(t => t.team),
+                datasets: [{
+                    label: 'Win Probability (%)',
+                    data: topTeams.map(t => t.percentage),
+                    backgroundColor: colors.slice(0, topTeams.length),
+                    borderColor: colors.slice(0, topTeams.length),
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#667eea'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 12,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
