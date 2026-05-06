@@ -5,6 +5,8 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")  # ← add this line
 import matplotlib.pyplot as plt
 
 import torch
@@ -184,7 +186,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 # Learning rate scheduler: reduce LR when validation loss plateaus
 # This helps squeeze out extra performance once the model stops improving quickly.
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-    optimizer, mode="min", patience=5, factor=0.5, verbose=True
+    optimizer, mode="min", patience=5, factor=0.5
 )
 
 # --- 4d. Training loop ---
