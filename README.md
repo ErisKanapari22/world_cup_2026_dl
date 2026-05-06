@@ -404,40 +404,8 @@ MIT License - See LICENSE file for details
 
 ## 👤 Author
 
-**Created by**: Your Name  
+**Created by**: Eris Kanapari  
 **Date**: May 2026  
-**Contact**: your.email@example.com
-
----
-
-## 🤝 Contributing
-
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📞 Support
-
-For issues, questions, or suggestions:
-- Open an Issue on GitHub
-- Check existing Issues for solutions
-- Review the notebooks for detailed explanations
-
----
-
-## 🎉 Acknowledgments
-
-- FIFA for world rankings data
-- International football community for match records
-- PyTorch for deep learning framework
-- Scikit-learn for machine learning utilities
-
----
 
 **⚽ May the best team win! 🏆**
 
