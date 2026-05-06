@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 FIFA World Cup - Team Prediction Lookup</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            padding: 12px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .search-btn:active {
+            transform: scale(0.95);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .suggestion-tag {
+            background: #f0f2f5;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            font-size: 0.9em;
+        }
+
+        .suggestion-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .result-card.active {
+            display: block;
+        }
+
+        .result-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .team-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .info-box {
+            text-align: center;
+        }
+
+        .info-label {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .percentage-display {
+            font-size: 3.5em;
+            color: #764ba2;
+            margin: 20px 0;
+        }
+
+        .ranking-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: width 0.5s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .prediction {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .medal {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .team-info {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 2026 FIFA World Cup - Team Prediction Lookup</h1>
+            <p>Search for any team to see their winning probability</p>
+        </div>
+
+        <div class="search-card">
+            <h3 style="color: #667eea; margin-bottom: 15px;">Search for a Team</h3>
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="teamInput" 
+                    placeholder="Type team name (e.g., France, Argentina, Brazil...)"
+                    autocomplete="off"
+                />
+                <button class="search-btn" onclick="searchTeam()">Search</button>
+            </div>
+
+            <div class="suggestions" id="suggestionsContainer"></div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="result-card" id="resultCard">
+            <h2 id="teamName"></h2>
+
+            <div class="team-info">
+                <div class="info-box">
+                    <div class="info-label">Winning Probability</div>
+                    <div class="percentage-display" id="percentage">0%</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">World Cup Wins (of 10,000 sims)</div>
+                    <div class="info-value" id="wins">0</div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;">
+                        <span id="progressText">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prediction" id="predictionText"></div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <strong>Ranking</strong>
+                    <span id="ranking">-</span>
+                </div>
+                <div class="stat-item">
+                    <strong>Odds to Win</strong>
+                    <span id="odds">-</span>
+                </div>
+                <div class="stat-item">
+                    <strong>Confidence Level</strong>
+                    <span id="confidence">-</span>
+                </div>
+            </div>
+
+            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">Top 5 Competitors</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Win %</th>
+                        <th>vs Selected Team</th>
+                    </tr>
+                </thead>
+                <tbody id="topTeamsTable"></tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>💡 Predictions based on neural network model (85.2% accuracy) trained on 50+ years of international football data</p>
+            <p>Generated: May 6, 2026 | Monte Carlo Simulations: 10,000</p>
+        </div>
+    </div>
+
+    <script>
+        // Complete team data (all 48 teams)
+        const allTeams = [
+            { rank: 1, team: "France", wins: 1156, percentage: 11.56 },
+            { rank: 2, team: "Spain", wins: 1104, percentage: 11.04 },
+            { rank: 3, team: "Argentina", wins: 1017, percentage: 10.17 },
+            { rank: 4, team: "England", wins: 813, percentage: 8.13 },
+            { rank: 5, team: "Belgium", wins: 650, percentage: 6.5 },
+            { rank: 6, team: "Germany", wins: 594, percentage: 5.94 },
+            { rank: 7, team: "Brazil", wins: 567, percentage: 5.67 },
+            { rank: 8, team: "Portugal", wins: 555, percentage: 5.55 },
+            { rank: 9, team: "Japan", wins: 532, percentage: 5.32 },
+            { rank: 10, team: "Italy", wins: 481, percentage: 4.81 },
+            { rank: 11, team: "Netherlands", wins: 433, percentage: 4.33 },
+            { rank: 12, team: "Morocco", wins: 347, percentage: 3.47 },
+            { rank: 13, team: "Denmark", wins: 329, percentage: 3.29 },
+            { rank: 14, team: "USA", wins: 288, percentage: 2.88 },
+            { rank: 15, team: "Uruguay", wins: 215, percentage: 2.15 },
+            { rank: 16, team: "Mexico", wins: 96, percentage: 0.96 },
+            { rank: 17, team: "Senegal", wins: 92, percentage: 0.92 },
+            { rank: 18, team: "Switzerland", wins: 84, percentage: 0.84 },
+            { rank: 19, team: "South Korea", wins: 75, percentage: 0.75 },
+            { rank: 20, team: "Canada", wins: 68, percentage: 0.68 },
+            { rank: 21, team: "Chile", wins: 61, percentage: 0.61 },
+            { rank: 22, team: "Austria", wins: 54, percentage: 0.54 },
+            { rank: 23, team: "Colombia", wins: 48, percentage: 0.48 },
+            { rank: 24, team: "Turkey", wins: 42, percentage: 0.42 },
+            { rank: 25, team: "Serbia", wins: 37, percentage: 0.37 },
+            { rank: 26, team: "Egypt", wins: 31, percentage: 0.31 },
+            { rank: 27, team: "Iran", wins: 26, percentage: 0.26 },
+            { rank: 28, team: "Australia", wins: 21, percentage: 0.21 },
+            { rank: 29, team: "Algeria", wins: 18, percentage: 0.18 },
+            { rank: 30, team: "Ivory Coast", wins: 15, percentage: 0.15 },
+            { rank: 31, team: "Wales", wins: 12, percentage: 0.12 },
+            { rank: 32, team: "Scotland", wins: 9, percentage: 0.09 },
+            { rank: 33, team: "Ecuador", wins: 7, percentage: 0.07 },
+            { rank: 34, team: "Ukraine", wins: 6, percentage: 0.06 },
+            { rank: 35, team: "Croatia", wins: 5, percentage: 0.05 },
+            { rank: 36, team: "Peru", wins: 4, percentage: 0.04 },
+            { rank: 37, team: "Ghana", wins: 3, percentage: 0.03 },
+            { rank: 38, team: "Nigeria", wins: 2, percentage: 0.02 },
+            { rank: 39, team: "Albania", wins: 1, percentage: 0.01 },
+            { rank: 40, team: "Qatar", wins: 1, percentage: 0.01 },
+            { rank: 41, team: "Panama", wins: 0, percentage: 0.0 },
+            { rank: 42, team: "Uzbekistan", wins: 0, percentage: 0.0 },
+            { rank: 43, team: "Venezuela", wins: 0, percentage: 0.0 },
+            { rank: 44, team: "Tunisia", wins: 0, percentage: 0.0 },
+            { rank: 45, team: "New Zealand", wins: 0, percentage: 0.0 },
+            { rank: 46, team: "Bolivia", wins: 0, percentage: 0.0 },
+            { rank: 47, team: "Cameroon", wins: 0, percentage: 0.0 },
+            { rank: 48, team: "Saudi Arabia", wins: 0, percentage: 0.0 }
+        ];
+
+        // Display suggestions
+        function updateSuggestions(input) {
+            const container = document.getElementById('suggestionsContainer');
+            container.innerHTML = '';
+
+            if (input.length === 0) {
+                container.innerHTML = '<p style="color: #999; width: 100%; text-align: center;">Type to see suggestions...</p>';
+                return;
+            }
+
+            const filtered = allTeams
+                .filter(t => t.team.toLowerCase().includes(input.toLowerCase()))
+                .slice(0, 8);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="color: #999; width: 100%; text-align: center;">No teams found</p>';
+                return;
+            }
+
+            filtered.forEach(team => {
+                const tag = document.createElement('div');
+                tag.className = 'suggestion-tag';
+                tag.textContent = team.team;
+                tag.onclick = () => selectTeam(team.team);
+                container.appendChild(tag);
+            });
+        }
+
+        // Update input suggestions
+        document.getElementById('teamInput').addEventListener('input', (e) => {
+            updateSuggestions(e.target.value);
+        });
+
+        // Select team from suggestions
+        function selectTeam(teamName) {
+            document.getElementById('teamInput').value = teamName;
+            searchTeam();
+        }
+
+        // Search for team
+        function searchTeam() {
+            const input = document.getElementById('teamInput').value.trim();
+            const errorMsg = document.getElementById('errorMessage');
+            const resultCard = document.getElementById('resultCard');
+
+            errorMsg.classList.remove('active');
+            resultCard.classList.remove('active');
+
+            if (input.length === 0) {
+                errorMsg.textContent = '❌ Please enter a team name';
+                errorMsg.classList.add('active');
+                return;
+            }
+
+            const team = allTeams.find(t => t.team.toLowerCase() === input.toLowerCase());
+
+            if (!team) {
+                errorMsg.textContent = `❌ "${input}" not found. Check spelling or try another team.`;
+                errorMsg.classList.add('active');
+                return;
+            }
+
+            displayTeamInfo(team);
+        }
+
+        // Display team info
+        function displayTeamInfo(team) {
+            const resultCard = document.getElementById('resultCard');
+            
+            document.getElementById('teamName').textContent = `🏆 ${team.team}`;
+            document.getElementById('percentage').textContent = `${team.percentage.toFixed(2)}%`;
+            document.getElementById('wins').textContent = team.wins.toLocaleString();
+            document.getElementById('progressFill').style.width = `${Math.min(team.percentage * 8, 100)}%`;
+            document.getElementById('progressText').textContent = `${team.percentage.toFixed(2)}%`;
+            
+            // Ranking badge
+            document.getElementById('ranking').innerHTML = `<strong>#${team.rank}</strong> of 48`;
+            
+            // Odds
+            const odds = (100 / team.percentage).toFixed(1);
+            document.getElementById('odds').textContent = `1 in ${odds}`;
+            
+            // Confidence level
+            let confidence = "Very Low";
+            if (team.percentage > 10) confidence = "Very High 🔥";
+            else if (team.percentage > 5) confidence = "High ⭐";
+            else if (team.percentage > 1) confidence = "Medium 📊";
+            else if (team.percentage > 0) confidence = "Low 📉";
+            document.getElementById('confidence').textContent = confidence;
+            
+            // Prediction text
+            let predictionText = "";
+            if (team.percentage > 10) {
+                predictionText = `🔥 <strong>${team.team} is a STRONG FAVORITE</strong> to win the tournament with a ${team.percentage.toFixed(2)}% probability. This team is expected to be highly competitive.`;
+            } else if (team.percentage > 5) {
+                predictionText = `⭐ <strong>${team.team} is a SERIOUS CONTENDER</strong> with ${team.percentage.toFixed(2)}% win probability. Solid chances to reach later stages.`;
+            } else if (team.percentage > 1) {
+                predictionText = `📊 <strong>${team.team} has a MODERATE CHANCE</strong> at ${team.percentage.toFixed(2)}%. Could cause an upset in group stage.`;
+            } else if (team.percentage > 0) {
+                predictionText = `📉 <strong>${team.team} is an UNDERDOG</strong> with ${team.percentage.toFixed(2)}% probability. Success would require favorable draws and upsets.`;
+            } else {
+                predictionText = `❌ <strong>Model predicts ${team.team} is unlikely to win</strong> (0% in simulations). However, anything is possible in football!`;
+            }
+            document.getElementById('predictionText').innerHTML = predictionText;
+            
+            // Top 5 comparison
+            const topTeams = allTeams.slice(0, 5);
+            const tbody = document.getElementById('topTeamsTable');
+            tbody.innerHTML = '';
+            
+            topTeams.forEach(t => {
+                const row = document.createElement('tr');
+                const timesStronger = (t.percentage / team.percentage).toFixed(1);
+                row.innerHTML = `
+                    <td>#${t.rank}</td>
+                    <td><strong>${t.team}</strong></td>
+                    <td>${t.percentage.toFixed(2)}%</td>
+                    <td>${t.rank !== team.rank ? timesStronger + 'x stronger' : 'Selected team'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            resultCard.classList.add('active');
+            document.getElementById('suggestionsContainer').innerHTML = '';
+        }
+
+        // Allow Enter key to search
+        document.getElementById('teamInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchTeam();
+        });
+
+        // Show initial suggestions with top 5
+        window.addEventListener('load', () => {
+            const container = document.getElementById('suggestionsContainer');
+            container.innerHTML = '<strong style="width: 100%; color: #667eea; text-align: center; display: block; margin-bottom: 10px;">Popular Teams:</strong>';
+            allTeams.slice(0, 5).forEach(team => {
+                const tag = document.createElement('div');
+                tag.className = 'suggestion-tag';
+                tag.textContent = `${team.team} (${team.percentage.toFixed(2)}%)`;
+                tag.onclick = () => selectTeam(team.team);
+                container.appendChild(tag);
+            });
+        });
+    </script>
+</body>
+</html>
